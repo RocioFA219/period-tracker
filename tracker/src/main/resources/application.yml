@@ -1,0 +1,28 @@
+server:
+  port: 8080 # Puerto estándar para el primer servicio
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/period_tracker_users
+    username: user
+    password: password
+
+  sql:
+    init:
+      mode: always
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8085/realms/period-tracker
+          jwk-set-uri: http://localhost:8085/realms/period-tracker/protocol/openid-connect/certs

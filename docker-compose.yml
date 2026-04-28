@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: period-tracker-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: period_tracker_users
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+        image: confluentinc/cp-kafka:7.5.0
+        container_name: kafka
+        depends_on:
+          - zookeeper
+        ports:
+          - "9092:9092"
+        environment:
+          KAFKA_BROKER_ID: 1
+          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        restart: always
+
+  mongodb:
+      image: mongo:latest
+      container_name: mongodb
+      ports:
+        - "27017:27017"
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: admin
+        MONGO_INITDB_ROOT_PASSWORD: password
+      restart: always
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.0
+    command: start-dev
+    environment:
+       KEYCLOAK_ADMIN: admin
+       KEYCLOAK_ADMIN_PASSWORD: admin
+      # Si quieres que Keycloak use su propia BD en el mismo Postgres:
+       KC_DB: postgres
+       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak_db
+       KC_DB_USERNAME: user
+       KC_DB_PASSWORD: password
+       KC_HOSTNAME_STRICT: "false"
+       KC_HTTP_ENABLED: "true"
+    ports:
+        - "8085:8080" # Accederás a Keycloak en el 8085
+    depends_on:
+        - postgres

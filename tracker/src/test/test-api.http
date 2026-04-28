@@ -1,0 +1,8 @@
+POST http://localhost:8080/api/user
+Content-Type: application/json
+
+{
+  "username": "ana_de",
+  "email": "opop@example.com",
+  "averageCycleLength": 28
+}
