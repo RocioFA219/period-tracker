@@ -5,10 +5,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: period_tracker_users
-
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
@@ -35,24 +34,23 @@ services:
       ports:
         - "27017:27017"
       environment:
-        MONGO_INITDB_ROOT_USERNAME: admin
-        MONGO_INITDB_ROOT_PASSWORD: password
+        MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+        MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
       restart: always
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.0
     command: start-dev
     environment:
-       KEYCLOAK_ADMIN: admin
-       KEYCLOAK_ADMIN_PASSWORD: admin
-      # Si quieres que Keycloak use su propia BD en el mismo Postgres:
+       KEYCLOAK_ADMIN: ${KC_ADMIN_USER}
+       KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASS}
        KC_DB: postgres
-       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak_db
-       KC_DB_USERNAME: user
-       KC_DB_PASSWORD: password
+       KC_DB_URL: jdbc:postgresql://postgres:5432/${KC_DB_NAME}
+       KC_DB_USERNAME: ${DB_USER}
+       KC_DB_PASSWORD: ${DB_PASSWORD}
        KC_HOSTNAME_STRICT: "false"
        KC_HTTP_ENABLED: "true"
     ports:
-        - "8085:8080" # Accederás a Keycloak en el 8085
+        - "8085:8080"
     depends_on:
         - postgres
