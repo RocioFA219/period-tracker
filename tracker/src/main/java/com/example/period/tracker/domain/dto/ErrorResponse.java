@@ -1,4 +1,10 @@
 package com.example.period.tracker.domain.dto;
 
-public record ErrorResponse() {
+import java.time.LocalDateTime;
+
+public record ErrorResponse(
+        String code,
+        String message,
+        LocalDateTime timestamp
+) {
 }

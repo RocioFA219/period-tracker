@@ -1,6 +1,6 @@
 package com.example.period.tracker.router;
 
-import com.example.period.tracker.handler.UserHandler;
+import com.example.period.tracker.infra.handler.UserHandler;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,6 @@ public class UserRouter {
         return RouterFunctions
                 .route(POST("/api/user"), userHandler::createUser)
                 .andRoute(GET("/api/users"), userHandler::getAllUsers)
-                .andRoute(GET("/api/user/search"), userHandler::findByEmail)
-                .andRoute(POST("/api/user/password"),userHandler::findByPassword);
+                .andRoute(GET("/api/user/search"), userHandler::findByEmail);
     }
 }
