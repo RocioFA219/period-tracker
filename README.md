@@ -51,12 +51,3 @@ Apache Kafka: Bus de eventos para comunicación inter-service.
 PostgreSQL 16 (R2DBC): Driver reactivo para evitar el bloqueo de hilos en el manejo de usuarios.
 
 MongoDB Reactive: Almacenamiento flexible para la variabilidad de los ciclos.
-
-## 3. Configuración de Seguridad y Entorno
-Nota de Mentoría: Este sistema utiliza configuración externalizada. Nunca se deben incluir credenciales en el código fuente.
-El sistema requiere un archivo .env en la raíz (asegúrate de que esté en tu .gitignore):
-# Database Credentials
-DB_PASSWORD=your_secure_password
-MONGO_ROOT_PASSWORD=your_mongo_password
-# Keycloak Secrets
-KEYCLOAK_CLIENT_SECRET=your_client_secret_from_console
