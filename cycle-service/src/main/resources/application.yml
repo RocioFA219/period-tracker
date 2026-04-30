@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: ${SERVER_PORT:8081}
 
 spring:
   main:
@@ -7,10 +7,10 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://admin:password@localhost:27017/cycle_db?authSource=admin
+      uri: ${MONGO_URI:mongodb://admin:password@localhost:27017/cycle_db?authSource=admin}
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_SERVERS:localhost:9092}
     consumer:
       group-id: cycle-service-group
       auto-offset-reset: earliest
@@ -21,5 +21,5 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8085/realms/period-tracker
-          jwk-set-uri: http://localhost:8085/realms/period-tracker/protocol/openid-connect/certs
+          issuer-uri: ${AUTH_SERVER_URL:http://localhost:8085}/realms/period-tracker
+          jwk-set-uri: ${AUTH_SERVER_URL:http://localhost:8085}/realms/period-tracker/protocol/openid-connect/certs
