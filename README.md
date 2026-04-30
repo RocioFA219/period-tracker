@@ -1,102 +1,62 @@
-Period Tracker System
-A reactive microservices-based menstrual cycle tracking application that allows users to register, log their cycles, and receive predictions for their next period.
-Architecture
-┌─────────────────────┐       ┌─────────────────────┐
-│  React Frontend     │──────▶│  Tracker Service     │
-│  (Vite + React)     │       │  (Port 8080)         │
-│  Port 5173          │       │  User Management     │
-│                     │       │  PostgreSQL + R2DBC  │
-└─────────────────────┘       └──────────┬──────────┘
-                                         │ Kafka
-                                         ▼
-                                ┌─────────────────────┐
-                                │  Cycle Service       │
-                                │  (Port 8081)         │
-                                │  Cycle Logic         │
-                                │  MongoDB Reactive    │
-                                └─────────────────────┘
-        ┌─────────────────────┐       ┌─────────────────────┐
-        │  Keycloak           │       │  Kafka + Zookeeper  │
-        │  (Port 8085)        │       │  (Port 9092)        │
-        │  OAuth2 / OIDC      │       │  Event Streaming    │
-        └─────────────────────┘       └─────────────────────┘
-Tech Stack
-Backend
-- Java 17 with Spring Boot 3.5.x
-- Spring WebFlux (reactive, non-blocking)
-- Spring Security with OAuth2 Resource Server (JWT)
-- Apache Kafka for inter-service messaging
-Frontend
-- React 19 with Vite
-- keycloak-js for authentication
-- react-calendar for cycle visualization
-- Lucide React for icons
-- Axios for HTTP requests
-Infrastructure
-- PostgreSQL 16 with R2DBC
-- MongoDB (reactive)
-- Keycloak 24 (IAM / SSO)
-- Apache Kafka with Zookeeper
-- Docker Compose
-Project Structure
-period-tracker-system/
-├── docker-compose.yml          # Infrastructure services
-├── .env                        # Environment variables
-├── tracker/                    # User management microservice
-│   └── src/main/java/...
-│       ├── config/             # Security, CORS, Keycloak
-│       ├── domain/             # DTOs, models, exceptions, service
-│       ├── router/             # WebFlux routes
-│       ├── respository/        # R2DBC repositories
-│       └── producer/           # Kafka event producer
-├── cycle-service/              # Cycle tracking microservice
-│   └── src/main/java/...
-│       ├── domain/             # Models, DTOs, service, repository
-│       ├── infrastructure/     # Config, routes, handlers, Kafka consumer
-└── cycle-tracker-front/        # React frontend
-    └── src/
-        ├── App.jsx             # Main app + dashboard
-        ├── keycloak.js         # Keycloak configuration
-        ├── components/         # RegisterForm, etc.
-        └── services/           # API service clients
-Features
-- User Registration & Login via Keycloak (OAuth2/OIDC)
-- Cycle Registration - Log period start dates
-- Cycle Tracking - View current cycle day and status
-- Predictions - Automatic next-period prediction based on average cycle length
-- Calendar View - Visual calendar highlighting active period days
-- Reactive Architecture - Non-blocking I/O across all services
-Getting Started
-Prerequisites
-- Docker and Docker Compose
-- Java 17
-- Maven
-- Node.js 18+
-1. Start Infrastructure
-docker-compose up -d
-Starts PostgreSQL (5432), MongoDB (27017), Kafka (9092), Keycloak (8085)
-2. Run Backend Services
-cd tracker && mvn spring-boot:run       # Port 8080
-cd cycle-service && mvn spring-boot:run # Port 8081
-3. Run Frontend
-cd cycle-tracker-front
-npm install
-npm run dev  # Port 5173
-4. Keycloak Setup
-1. Access admin console at http://localhost:8085
-2. Create realm: period-tracker
-3. Create client: tracker-app
-API Endpoints
-Tracker Service (Port 8080)
-Method	Endpoint	Description
-POST	/api/users	Register a new user
-GET	/api/users/email/{email}	Find user by email
-Cycle Service (Port 8081)
-Method	Endpoint	Description
-GET	/api/cycles/{userId}	Get all cycles for a user
-POST	/api/cycles/register	Register a new period
-Event Flow
-1. User registers → Tracker Service
-2. Tracker creates user in PostgreSQL + Keycloak
-3. Tracker publishes UserCreated event to Kafka
-4. Cycle Service consumes event and initializes cycle tracking in MongoDB
+### 🛠 Estado del Proyecto: En Desarrollo Activo
+Aviso Técnico: Este sistema se encuentra actualmente en fase de construcción. La arquitectura base está consolidada, pero se están integrando módulos de análisis avanzado y notificaciones asíncronas.
+#### Roadmap de Desarrollo
+Para que cualquier colaborador o reclutador entienda en qué punto estás, utilizaremos una lista de control de hitos:
+
+[x] Fase 1: Infraestructura Base (Docker, Bases de Datos, Keycloak).
+
+[x] Fase 2: Core Reactivo (WebFlux, R2DBC, Routers/Handlers).
+
+[x] Fase 3: Seguridad (Integración con OAuth2/JWT y externalización de secretos).
+
+[ ] Fase 4: Comunicación por Eventos (Implementación completa de Kafka Producers/Consumers).
+
+[ ] Fase 5: Lógica de Predicción (Algoritmos de cálculo de ciclo en el Cycle Service).
+
+[ ] Fase 6: Resiliencia (Implementación de Patrón Circuit Breaker con Resilience4j).
+
+# Period Tracker System: Arquitectura Reactiva de Microservicios
+Este ecosistema representa una solución avanzada de misión crítica para el seguimiento del ciclo menstrual, diseñado bajo los principios del Manifiesto Reactivo. Utiliza una arquitectura orientada a eventos para garantizar la resiliencia, la escalabilidad y el procesamiento no bloqueante.
+
+## 1. Arquitectura del Sistema
+El sistema se divide en dos dominios de negocio claramente desacoplados, comunicados de forma asíncrona mediante Apache Kafka.
+┌─────────────────────┐      ┌─────────────────────┐
+│   React Frontend    │      │   Tracker Service   │
+│   (Vite + React)    │─────▶│     (Port 8080)     │
+│   Port 5173         │      │   User Management   │
+└─────────────────────┘      │  PostgreSQL + R2DBC │
+                             └──────────┬──────────┘
+                                        │
+           Kafka Event Stream ──────────▼──────────
+                               ┌─────────────────────┐
+                               │    Cycle Service    │
+                               │     (Port 8081)     │
+                               │     Cycle Logic     │
+                               │   MongoDB Reactive  │
+                               └─────────────────────┘
+
+## 2. Stack Tecnológico
+### Backend (Java Ecosystem)
+Java 17 LTS: Aprovechando Records y Sealed Classes para un dominio más seguro.
+
+Spring Boot 3.5.x: El estándar para microservicios.
+
+Spring WebFlux: Stack 100% reactivo y no bloqueante sobre Netty.
+
+Spring Security + OAuth2 (JWT): Delegación de identidad robusta.
+
+Apache Kafka: Bus de eventos para comunicación inter-service.
+
+### Persistencia de Datos
+PostgreSQL 16 (R2DBC): Driver reactivo para evitar el bloqueo de hilos en el manejo de usuarios.
+
+MongoDB Reactive: Almacenamiento flexible para la variabilidad de los ciclos.
+
+## 3. Configuración de Seguridad y Entorno
+Nota de Mentoría: Este sistema utiliza configuración externalizada. Nunca se deben incluir credenciales en el código fuente.
+El sistema requiere un archivo .env en la raíz (asegúrate de que esté en tu .gitignore):
+# Database Credentials
+DB_PASSWORD=your_secure_password
+MONGO_ROOT_PASSWORD=your_mongo_password
+# Keycloak Secrets
+KEYCLOAK_CLIENT_SECRET=your_client_secret_from_console
