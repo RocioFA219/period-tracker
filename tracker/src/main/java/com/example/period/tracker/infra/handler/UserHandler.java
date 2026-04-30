@@ -1,17 +1,23 @@
-package com.example.period.tracker.handler;
+package com.example.period.tracker.infra.handler;
 
+import com.example.period.tracker.domain.dto.ErrorResponse;
 import com.example.period.tracker.domain.dto.UserRequestDTO;
 import com.example.period.tracker.domain.dto.UserResponseDTO;
+import com.example.period.tracker.domain.exception.UserNotFoundException;
 import com.example.period.tracker.mapper.UserMapper;
 import com.example.period.tracker.producer.UserEventProducer;
 import com.example.period.tracker.respository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.keycloak.admin.client.Keycloak;
 import org.springframework.boot.autoconfigure.rsocket.RSocketProperties;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
+
+import java.time.LocalDateTime;
 
 
 @Component
@@ -36,23 +42,19 @@ public class  UserHandler {
                 .body(userRepository.findAll()
                         .map(UserMapper::toDto), UserResponseDTO.class);
     }
-    public Mono<ServerResponse> findByEmail(ServerRequest serverRequest){
+    public Mono<ServerResponse> findByEmail(ServerRequest serverRequest) {
         // Extraemos el parametro "email" de la URl.
         String email = serverRequest.queryParam("email")
-                .orElseThrow(() ->new IllegalArgumentException("Email obligatorio"));
+                .orElseThrow(() -> new IllegalArgumentException("Email obligatorio"));
 
-        return ServerResponse.ok()
-                .body(
-                        userRepository.findByEmail(email)
-                                .map(UserMapper::toDto),
-                        UserResponseDTO.class
-                );
-    }
-    public Mono<ServerResponse> findByPassword(ServerRequest serverRequest){
-        return serverRequest.bodyToMono(UserRequestDTO.class)
-                .flatMap(login-> userRepository.findByPassword(login.password()))
+        return userRepository.findByEmail(email)
                 .map(UserMapper::toDto)
-                .flatMap(userDto-> ServerResponse.ok().bodyValue(userDto))
-                .switchIfEmpty(ServerResponse.status(HttpStatus.UNAUTHORIZED).build());
+                .switchIfEmpty(Mono.error(new UserNotFoundException(email)))
+                .flatMap(dto-> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(dto))
+                .onErrorResume(IllegalAccessError.class,e ->
+                        ServerResponse.badRequest().bodyValue(new ErrorResponse("BAD_REQUEST",e.getMessage(), LocalDateTime.now())));
+
     }
 }

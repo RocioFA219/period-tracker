@@ -31,3 +31,11 @@ build/
 
 ### VS Code ###
 .vscode/
+
+#Local configuration secret
+application-local.yml
+application-local.properties
+.env
+# OS generated files
+.DS_Store
+thumbs.db
